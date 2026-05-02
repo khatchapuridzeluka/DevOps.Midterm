@@ -10,25 +10,28 @@ public class CalculatorServiceTests
 
     [Fact]
     public void Add_TwoPositiveNumbers_ReturnsSum()
-    {
-        var result = _sut.Add(2, 3);
-        Assert.Equal(5, result);
-    }
+        => Assert.Equal(5, _sut.Add(2, 3));
 
     [Fact]
     public void Subtract_LargerMinusSmaller_ReturnsPositive()
-    {
-        var result = _sut.Subtract(10, 4);
-        Assert.Equal(6, result);
-    }
+        => Assert.Equal(6, _sut.Subtract(10, 4));
+
+    [Fact]
+    public void Multiply_TwoNumbers_ReturnsProduct()
+        => Assert.Equal(20, _sut.Multiply(4, 5));
+
+    [Fact]
+    public void Divide_TwoNumbers_ReturnsQuotient()
+        => Assert.Equal(2.5, _sut.Divide(10, 4));
+
+    [Fact]
+    public void Divide_ByZero_ThrowsException()
+        => Assert.Throws<DivideByZeroException>(() => _sut.Divide(10, 0));
 
     [Xunit.Theory]
     [InlineData(-5, -3, -8)]
     [InlineData(0, 0, 0)]
     [InlineData(1.5, 2.5, 4)]
     public void Add_VariousInputs_ReturnsExpectedSum(double a, double b, double expected)
-    {
-        var result = _sut.Add(a, b);
-        Assert.Equal(expected, result);
-    }
+        => Assert.Equal(expected, _sut.Add(a, b));
 }
