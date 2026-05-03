@@ -1,0 +1,37 @@
+﻿services:
+  blue:
+    build: ..
+    container_name: app-blue
+    environment:
+      - APP_PORT=8080
+    ports:
+      - "8080:8080"
+    networks:
+      - bluegreen
+
+  green:
+    build: ..
+    container_name: app-green
+    environment:
+      - APP_PORT=8080
+    ports:
+      - "8081:8080"
+    networks:
+      - bluegreen
+
+  nginx:
+    image: nginx:alpine
+    container_name: bluegreen-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - blue
+      - green
+    networks:
+      - bluegreen
+
+networks:
+  bluegreen:
+    driver: bridge
