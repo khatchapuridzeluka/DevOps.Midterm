@@ -1,0 +1,18 @@
+# Prometheus alerting rules for the DevOps.WebAPI observability stack.
+
+groups:
+  - name: devops-webapi-alerts
+    rules:
+      # Fire a CRITICAL alert when the application's error rate exceeds 5 per minute.
+      # rate(app_errors_total[1m]) gives errors-per-second over the last minute;
+      # multiplying by 60 converts that to errors-per-minute.
+      - alert: HighErrorRate
+        expr: sum(rate(app_errors_total[1m])) * 60 > 5
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CRITICAL: Application error rate exceeds 5 per minute"
+          description: >-
+            The DevOps.WebAPI application is producing more than 5 errors per minute
+            (current value: {{ printf "%.2f" $value }} errors/min over the last 1 minute).

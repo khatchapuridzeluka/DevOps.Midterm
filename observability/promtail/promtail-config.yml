@@ -1,0 +1,37 @@
+# Promtail configuration: tails the application's JSON log files from a shared
+# volume, parses the Serilog CLEF JSON, and ships entries to Loki.
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: devops-webapi
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: devops-webapi
+          application: devops-webapi
+          __path__: /app/logs/*.json
+    pipeline_stages:
+      # The Serilog CompactJsonFormatter emits one JSON object per line (CLEF):
+      #   @t = timestamp, @mt = message template, @l = level (absent for Information)
+      - json:
+          expressions:
+            timestamp: '"@t"'
+            level: '"@l"'
+            message: '"@mt"'
+      # Promote the log level to a Loki label for easy filtering.
+      - labels:
+          level:
+      # Use the application timestamp instead of the ingestion time.
+      - timestamp:
+          source: timestamp
+          format: RFC3339Nano

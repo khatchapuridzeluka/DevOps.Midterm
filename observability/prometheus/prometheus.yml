@@ -1,0 +1,35 @@
+# Prometheus configuration for the DevOps.WebAPI observability stack.
+# Scrapes the instrumented application's /metrics endpoint and loads alert rules.
+
+global:
+  scrape_interval: 15s        # How often to scrape targets.
+  evaluation_interval: 15s    # How often to evaluate alert rules.
+
+# Alert rule files (e.g. the CRITICAL error-rate alert).
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+# Send fired alerts to Alertmanager (optional; only used if the service is running).
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+scrape_configs:
+  # Prometheus scraping itself (useful for debugging the stack).
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - localhost:9090
+
+  # The instrumented DevOps.WebAPI application.
+  # "app" is the docker-compose service name; 8080 is the container port,
+  # and /metrics is exposed by prometheus-net (MapMetrics).
+  - job_name: devops-webapi
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - app:8080
+        labels:
+          application: devops-webapi

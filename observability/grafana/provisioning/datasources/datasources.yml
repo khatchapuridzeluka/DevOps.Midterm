@@ -1,0 +1,20 @@
+# Grafana datasource provisioning: auto-configures Prometheus (metrics) and Loki (logs)
+# on startup so no manual setup is needed in the UI.
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    uid: prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
+
+  - name: Loki
+    uid: loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    editable: true
