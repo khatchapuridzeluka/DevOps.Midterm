@@ -3,6 +3,17 @@
 #   docker compose -f observability/docker-compose.yml up -d --build
 
 services:
+  # Docker volumes may be root-owned from a prior run; fix ownership before the app starts.
+  app-logs-init:
+    image: busybox:1.36
+    user: root
+    volumes:
+      - app-logs:/logs
+    command: ["sh", "-c", "mkdir -p /logs && chown -R 1654:1654 /logs"]
+    restart: "no"
+    networks:
+      - observability
+
   app:
     build:
       context: ..
@@ -16,6 +27,9 @@ services:
       - "8082:8080"
     volumes:
       - app-logs:/app/logs
+    depends_on:
+      app-logs-init:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/api/Health"]
       interval: 30s

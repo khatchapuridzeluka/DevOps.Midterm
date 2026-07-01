@@ -18,15 +18,12 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=build /app/publish .
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN mkdir -p /app/logs \
-    && chown -R $APP_UID:$APP_UID /app \
-    && chmod +x /usr/local/bin/docker-entrypoint.sh
+    && chown -R $APP_UID:$APP_UID /app
 
 # Render injects PORT env var; bind to it
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
-USER root
-ENTRYPOINT ["docker-entrypoint.sh"]
-CMD ["dotnet", "DevOps.WebAPI.dll"]
+USER $APP_UID
+ENTRYPOINT ["dotnet", "DevOps.WebAPI.dll"]
