@@ -21,9 +21,13 @@ def run(cmd, check=True):
 def ensure_env_file():
     env_example = REPO_ROOT / ".env.example"
     env_file = REPO_ROOT / ".env"
-    if env_example.exists() and not env_file.exists():
-        shutil.copy(env_example, env_file)
-        print("Created .env from .env.example")
+    if not env_file.exists():
+        if env_example.exists():
+            shutil.copy(env_example, env_file)
+            print("Created .env from .env.example")
+        else:
+            print("ERROR: .env.example is missing. Cannot create .env.")
+            sys.exit(1)
 
 
 def validate_compose_files():

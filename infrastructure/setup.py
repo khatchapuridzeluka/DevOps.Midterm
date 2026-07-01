@@ -53,9 +53,13 @@ def main():
     # Create .env from example if missing (secrets stay out of git)
     env_example = repo_root / ".env.example"
     env_file = repo_root / ".env"
-    if env_example.exists() and not env_file.exists():
-        shutil.copy(env_example, env_file)
-        print("Created .env from .env.example")
+    if not env_file.exists():
+        if env_example.exists():
+            shutil.copy(env_example, env_file)
+            print("Created .env from .env.example")
+        else:
+            print("ERROR: .env.example is missing. Cannot create .env.")
+            sys.exit(1)
 
     # Pull base images for blue-green deployment and observability stack
     images = [
