@@ -16,3 +16,14 @@ groups:
           description: >-
             The DevOps.WebAPI application is producing more than 5 errors per minute
             (current value: {{ printf "%.2f" $value }} errors/min over the last 1 minute).
+
+      - alert: AppDown
+        expr: up{job="devops-webapi"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "CRITICAL: Application is down"
+          description: >-
+            Prometheus cannot scrape the devops-webapi /metrics endpoint.
+            The application may be stopped or unreachable.

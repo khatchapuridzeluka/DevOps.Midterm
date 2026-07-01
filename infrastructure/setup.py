@@ -43,15 +43,30 @@ def main():
         print("Docker Compose not available.")
         sys.exit(1)
 
-    # Create directories
-    Path("monitoring/logs").mkdir(parents=True, exist_ok=True)
-    Path("deployment").mkdir(parents=True, exist_ok=True)
+    repo_root = Path(__file__).resolve().parent.parent
 
-    # Pull base images
+    # Create directories
+    (repo_root / "monitoring" / "logs").mkdir(parents=True, exist_ok=True)
+    (repo_root / "deployment").mkdir(parents=True, exist_ok=True)
+    (repo_root / "observability").mkdir(parents=True, exist_ok=True)
+
+    # Create .env from example if missing (secrets stay out of git)
+    env_example = repo_root / ".env.example"
+    env_file = repo_root / ".env"
+    if env_example.exists() and not env_file.exists():
+        shutil.copy(env_example, env_file)
+        print("Created .env from .env.example")
+
+    # Pull base images for blue-green deployment and observability stack
     images = [
         "mcr.microsoft.com/dotnet/sdk:10.0",
         "mcr.microsoft.com/dotnet/aspnet:10.0",
         "nginx:alpine",
+        "prom/prometheus:v2.54.1",
+        "prom/alertmanager:v0.27.0",
+        "grafana/loki:3.1.1",
+        "grafana/promtail:3.1.1",
+        "grafana/grafana:11.2.0",
     ]
     for img in images:
         print(f"Pulling {img}...")
