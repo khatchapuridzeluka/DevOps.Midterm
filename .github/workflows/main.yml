@@ -75,9 +75,12 @@ jobs:
           fi
 
       - name: Secrets scan
-        uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          GITLEAKS_VERSION=8.24.3
+          curl -sL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar xz gitleaks
+          chmod +x gitleaks
+          # Scan the checked-out tree only; avoids gitleaks-action git log range failures on merge pushes.
+          ./gitleaks detect --source . --no-git --redact --verbose --exit-code 1
 
       - name: Validate Dockerfile and compose configs
         uses: aquasecurity/trivy-action@v0.36.0
